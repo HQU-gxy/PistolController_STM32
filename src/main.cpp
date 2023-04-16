@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "config.h"
-#include "wl.h"
+#include"wl.h"
 #include "br_driver.h"
 
 // WLModule wlMod(SET, CS, &Serial1, PIN_RX, PIN_TX);
@@ -13,7 +13,6 @@ void test4NextStep()
 
 void fuckBr()
 {
-
     toBeFucked = true;
     attachInterrupt(HALL1, test4NextStep, CHANGE);
     attachInterrupt(HALL2, test4NextStep, CHANGE);
@@ -35,21 +34,11 @@ void setup()
 
 void loop()
 {
-    char c;
-    if (Serial.available())
-    {
-        c = Serial.read();
-        int s = atoi(&c);
-        BrDriver::fuckStep(s);
-        delay(6);
-
-        BrDriver::drive(0, 0);
-    }
     if (toBeFucked)
     {
         uint64_t t0 = millis();
         toFuckNextStep = false;
-        BrDriver::nextStep();
+        BrDriver::fuckStep(0);
         while (millis() - t0 <= 50)
         {
             if (toFuckNextStep)
@@ -59,19 +48,6 @@ void loop()
                 BrDriver::fuckNextStepByHall();
             }
         }
-        BrDriver::resetStep(2);
-        BrDriver::lastStep();
-        t0 = millis();
-        while (millis() - t0 <= 150)
-        {
-            if (toFuckNextStep)
-            {
-                toFuckNextStep = false;
-                // BrDriver::lastStep();
-                BrDriver::fuckLastStepByHall();
-            }
-        }
-        BrDriver::resetStep();
         BrDriver::drive(0, 0);
         toBeFucked = false;
         detachInterrupt(HALL1);
@@ -80,15 +56,3 @@ void loop()
     }
 }
 
-void setup1()
-{
-    pinMode(LED, OUTPUT);
-}
-
-void loop1()
-{
-    digitalWrite(LED, HIGH);
-    delay(500);
-    digitalWrite(LED, LOW);
-    delay(500);
-}

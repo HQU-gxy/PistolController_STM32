@@ -17,7 +17,7 @@ void BrDriver::init()
     pinMode(HALL1, INPUT);
     pinMode(HALL2, INPUT);
     pinMode(HALL3, INPUT);
-    analogWriteFreq(10000);
+    analogWriteFrequency(10000);
 }
 
 void BrDriver::drive(uint8_t p1, uint8_t p2)
@@ -35,31 +35,6 @@ void BrDriver::drive(uint8_t p1, uint8_t p2)
 
     analogWrite(p1, 180);
     analogWrite(p2, 180);
-}
-
-uint8_t step = 0;
-
-void BrDriver::resetStep(uint8_t s)
-{
-    step = s;
-}
-
-void BrDriver::nextStep()
-{
-    fuckStep(step);
-    step++;
-    step %= 6;
-}
-
-void BrDriver::lastStep()
-{
-    fuckStep(step);
-    if (step > 0)
-    {
-        step--;
-        return;
-    }
-    step = 5;
 }
 
 void BrDriver::fuckStep(uint8_t s)
@@ -113,33 +88,6 @@ void BrDriver::fuckNextStepByHall()
         fuckStep(4);
         break;
     case 0b001:
-        fuckStep(5);
-        break;
-    default:
-        break;
-    }
-}
-void BrDriver::fuckLastStepByHall()
-{
-    uint8_t hSum = (digitalRead(HALL1) << 2) + (digitalRead(HALL2) << 1) + digitalRead(HALL3);
-    switch (hSum)
-    {
-    case 0b101:
-        fuckStep(0);
-        break;
-    case 0b001:
-        fuckStep(1);
-        break;
-    case 0b011:
-        fuckStep(2);
-        break;
-    case 0b010:
-        fuckStep(3);
-        break;
-    case 0b110:
-        fuckStep(4);
-        break;
-    case 0b100:
         fuckStep(5);
         break;
     default:

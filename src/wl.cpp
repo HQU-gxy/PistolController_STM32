@@ -1,14 +1,14 @@
+#include "RF24.h"
 #include "wl.h"
+#include "config.h"
+#include <Arduino.h>
+#include <SPI.h>
 
-WLModule::WLModule(uint8_t pin_set, uint8_t pin_cs,SerialUART *ser, uint8_t pin_rx, uint8_t pin_tx)
+RF24 *radio;
+
+void WLModule::init()
 {
-    _pin_set = pin_set;
-    _pin_cs = pin_cs;
-    _pin_rx = pin_rx;
-    _pin_tx = pin_tx;
-    _serial = ser;
-    _serial->setRX(_pin_rx);
-    _serial->setTX(_pin_tx);
-    _serial->begin(9600);
+    SPIClass SPI_WL(WL_MOSI, WL_MISO, WL_CLK, WL_CS);
+    radio = new RF24(WL_CE, WL_CS);
+    radio->begin(&SPI_WL);
 }
-
