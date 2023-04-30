@@ -1,0 +1,43 @@
+{
+  "build": {
+    "core": "stm32",
+    "cpu": "cortex-m0plus",
+    "extra_flags": "-DSTM32G0xx -DSTM32G031xx -DSTM32G0",
+    "f_cpu": "64000000L",
+    "mcu": "stm32g031g8ux",
+    "product_line": "STM32G031xx",
+    "variant": "STM32G0xx/G031G(4-6-8)U_G041G(6-8)U"
+  },
+  "debug": {
+    "jlink_device": "STM32G031G8",
+    "openocd_target": "stm32g0x",
+    "svd_path": "STM32F103xx.svd"
+  },
+  "frameworks": [
+    "arduino",
+    "cmsis",
+    "mbed",
+    "libopencm3",
+    "stm32cube"
+  ],
+  "name": "STM32G031G8 (8k RAM. 64k Flash)",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 8192,
+    "maximum_size": 65536,
+    "protocol": "stlink",
+    "protocols": [
+      "jlink",
+      "cmsis-dap",
+      "stlink",
+      "blackmagic",
+      "serial",
+      "dfu"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103c8.html",
+  "vendor": "Generic"
+}
