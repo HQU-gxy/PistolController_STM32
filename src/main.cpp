@@ -3,6 +3,7 @@
 #include "wl.h"
 #include "br_driver.h"
 #include <TinyIRSender.hpp>
+#include <EEPROM.h>
 
 bool toBeFucked = false, toFuckNextStep = false;
 
@@ -35,7 +36,7 @@ inline void batteryCheckCallback()
 
 inline void fuckBr()
 {
-    if (!checkBattery)
+    if (!checkBattery())
         return;
     toBeFucked = true;
     attachInterrupt(HALL1, test4NextStep, CHANGE);
@@ -86,7 +87,7 @@ void loop()
         {
             toFuckNextStep = false;
             // BrDriver::nextStep();
-            BrDriver::fuckNextStepByHall();
+            BrDriver::fuckStepByHall();
             // delay(5);
         }
 
@@ -102,28 +103,28 @@ void loop()
     }
 
     if (!(millis() % 200))
-    {
         sendNEC(IR_SEND_PIN, 233, 11451, 1);
+
+    /*
+    if (Serial.available())
+    {
+        char c = Serial.read();
+        int s = atoi(&c);
+        BrDriver::fuckStep(s);
+        delay(6);
+
+        BrDriver::drive(0, 0);
     }
-    // if (Serial.available())
-    // {
-    //     char c = Serial.read();
-    //     int s = atoi(&c);
-    //     BrDriver::fuckStep(s);
-    //     delay(6);
 
-    //     BrDriver::drive(0, 0);
-    // }
-
-    // if (toBeFucked)
-    // {
-    //     for (uint8_t i = 0; i < 12; i++)
-    //     {
-    //             toFuckNextStep = false;
-    //             BrDriver::nextStep();
-    //             delay(20);
-    //     }
-    //     BrDriver::drive(0, 0);
-    //     toBeFucked = false;
-    // }
+    if (toBeFucked)
+    {
+        for (uint8_t i = 0; i < 12; i++)
+        {
+                toFuckNextStep = false;
+                BrDriver::nextStep();
+                delay(20);
+        }
+        BrDriver::drive(0, 0);
+        toBeFucked = false;
+    }*/
 }

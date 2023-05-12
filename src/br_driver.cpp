@@ -68,7 +68,7 @@ void BrDriver::fuckStep(uint8_t s)
     }
 }
 
-void BrDriver::fuckNextStepByHall()
+void    BrDriver::fuckStepByHall()
 {
     uint8_t hSum = (digitalRead(HALL1) << 2) + (digitalRead(HALL2) << 1) + digitalRead(HALL3);
     switch (hSum)
