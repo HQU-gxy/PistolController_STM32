@@ -3,6 +3,9 @@
 #include "wl.hpp"
 #include "br_driver.hpp"
 #include <TinyIRSender.hpp>
+#include <EEPROM.h>
+
+// #include"wl_uart.hpp"
 
 // #include"wl_uart.hpp"
 
@@ -105,8 +108,17 @@ void loop()
     }
 
     if (!(millis() % 200))
-    {
         sendNEC(IR_SEND_PIN, 233, 11451, 1);
+
+    /*
+    if (Serial.available())
+    {
+        char c = Serial.read();
+        int s = atoi(&c);
+        BrDriver::fuckStep(s);
+        delay(6);
+
+        BrDriver::drive(0, 0);
     }
 
 // if (!(millis() % 1000))
