@@ -1,0 +1,47 @@
+#include <Arduino.h>
+#include <SPI.h>
+#include "config.h"
+bool toFuck = false;
+
+
+void f0()
+{
+    __NOP();
+}
+
+void fucked()
+{
+    // sdbg.println("fuck me");
+    toFuck = true;
+}
+
+void setup()
+{
+    pinMode(IR_SEND_PIN,OUTPUT);
+    Serial.begin(115200);
+}
+
+void loop()
+{
+    // if (toFuck)
+    // {
+    //     digitalWrite(IR_SEND_PIN, 1);
+    //     delay(300);
+    //     digitalWrite(IR_SEND_PIN, 0);
+    //     toFuck = false;
+    // }
+    if (Serial.available())
+    {
+        char c = Serial.read();
+        int s = atoi(&c);
+        Serial.printf("Fucking: %d\n", s);
+        delay(6);
+    }
+    if (!(millis() % 1000))
+    {
+        static bool g = false;
+        digitalWrite(IR_SEND_PIN, g);
+        g = !g;
+        Serial.println("shit");
+    }
+}
