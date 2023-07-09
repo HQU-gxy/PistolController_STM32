@@ -3,13 +3,9 @@
 #include "wl.hpp"
 #include "br_driver.hpp"
 #include <TinyIRSender.hpp>
-#include <EEPROM.h>
-
-// #include"wl_uart.hpp"
-
-// #include"wl_uart.hpp"
 
 bool toBeFucked = false, toFuckNextStep = false;
+bool triggerPressed = false;
 
 inline void test4NextStep()
 {
@@ -40,9 +36,12 @@ inline void batteryCheckCallback()
 
 inline void fuckBr()
 {
-    // if (!checkBattery)
-    //     return;
+// if (!checkBattery)
+//     return;
+#ifdef STEP_TEST
     Serial2.println("------Fucking By Trigger-----");
+#endif
+    triggerPressed = true;
     toBeFucked = true;
     attachInterrupt(HALL1, test4NextStep, CHANGE);
     attachInterrupt(HALL2, test4NextStep, CHANGE);
@@ -51,17 +50,33 @@ inline void fuckBr()
 
 void setup()
 {
-
     pinMode(TRIGGER, INPUT);
     pinMode(IR_SEND_PIN, OUTPUT);
 
     Serial2.begin(9600);
+#ifndef NO_WL
     WLModule::init();
+    // TODO: Detect for double-click
 
+    while (1)
+    {
+        WLModule::flushRx();
+        Serial2.println(WLModule::send(WLModule::MSG_REG, 12) ? "nice" : "fucked");
+        delay(1000);
+        if (WLModule::available())
+        {
+            uint8_t b[32];
+            WLModule::readInto(b);
+            if (b[0] == 0x10)
+                break;
+        }
+    }
+    WLModule::flushRx();
+#endif
     BrDriver::init();
-    BrDriver::beep(500, 200);
-    BrDriver::beep(700, 200);
-    BrDriver::beep(900, 200);
+    BrDriver::beep(500, 100);
+    BrDriver::beep(700, 100);
+    BrDriver::beep(900, 100);
 
     // HardwareTimer batteryCheckTimer(TIM2);
     // batteryCheckTimer.setOverflow(1, HERTZ_FORMAT);
@@ -76,7 +91,29 @@ uint32_t fuckingStartTime = 0;
 
 void loop()
 {
-
+    if (triggerPressed)
+    {
+        uint32_t t0 = millis();
+        bool longPress = false;
+        while (!digitalRead(TRIGGER))
+        {
+            if (millis() - t0 > 1000)
+            {
+                longPress = true;
+                break;
+            }
+        }
+        triggerPressed = false;
+        if (longPress)
+        {
+            // Handle long press
+            BrDriver::beep(1000, 100);
+            BrDriver::beep(1300, 100);
+        }
+        else
+            toBeFucked = true;
+    }
+    // Start fucking
     if (toBeFucked)
     {
         if (!startFuckingTiming)
@@ -85,17 +122,16 @@ void loop()
             startFuckingTiming = true;
             BrDriver::fuckStep(0);
             delay(10);
-            BrDriver::fuckStep(1);
         }
         if (toFuckNextStep)
         {
             toFuckNextStep = false;
             // BrDriver::nextStep();
             BrDriver::fuckNextStepByHall();
-            delay(15);
+            // delay(2);
         }
 
-        if (millis() - fuckingStartTime > 150) // stop fucking
+        if (millis() - fuckingStartTime > 200) // stop fucking
         {
             BrDriver::drive(0, 0);
             startFuckingTiming = false;
@@ -110,17 +146,6 @@ void loop()
     if (!(millis() % 200))
         sendNEC(IR_SEND_PIN, 233, 11451, 1);
 
-    /*
-    if (Serial.available())
-    {
-        char c = Serial.read();
-        int s = atoi(&c);
-        BrDriver::fuckStep(s);
-        delay(6);
-
-        BrDriver::drive(0, 0);
-    }
-
 // if (!(millis() % 1000))
 //     WLModule::send("shit", 5);
 #ifdef STEP_TEST
@@ -133,11 +158,14 @@ void loop()
             for (uint8_t a = 0; a < 12; a++)
             {
                 BrDriver::fuckStep(a % 6);
-                delay(10);
+                delay(5);
+                BrDriver::drive(0, 0);
+                delay(20);
             }
-            BrDriver::drive(0, 0);
-            delay(400);
         }
+        else if (c == 'h')
+            Serial2.printf("H1:%d\tH2:%d\tH3:%d\n",
+                           digitalRead(HALL1), digitalRead(HALL2), digitalRead(HALL3));
         else
         {
             int s = atoi(&c);
@@ -161,10 +189,4 @@ void loop()
     //     BrDriver::drive(0, 0);
     //     toBeFucked = false;
     // }
-
-    if (!(millis() % 1000))
-    {
-        Serial2.println("114514");
-        yield();
-    }
 }

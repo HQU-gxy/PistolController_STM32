@@ -1,0 +1,23 @@
+#include <Arduino.h>
+#include <br_driver.hpp>
+#include <wl.hpp>
+void setup()
+{
+    BrDriver::init();
+}
+
+void loop()
+{
+    analogWrite(BR_AH, 180);
+    digitalWrite(BR_CL, 1);
+    delay(20);
+    analogWrite(BR_AH, 0);
+    digitalWrite(BR_CL, 0);
+    delay(400);
+    analogWrite(BR_CH, 180);
+    digitalWrite(BR_AL, 1);
+    delay(20);
+    analogWrite(BR_CH, 0);
+    digitalWrite(BR_AL, 0);
+    delay(400);
+}

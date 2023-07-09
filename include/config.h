@@ -25,6 +25,11 @@
 #define BR_BL PB4
 #define BR_CL PB5
 
+#define BR_PWM_FREQ 3e4
+#define BR_PWM_DC 50
+
 // #define STEP_TEST
+#define NO_WL
+
 #define PIN_SERIAL2_TX PA2
 #define PIN_SERIAL2_RX PA3

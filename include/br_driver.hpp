@@ -21,7 +21,7 @@ namespace BrDriver
         pinMode(HALL1, INPUT_PULLUP);
         pinMode(HALL2, INPUT_PULLUP);
         pinMode(HALL3, INPUT_PULLUP);
-        analogWriteFrequency(1e4);
+        analogWriteFrequency(BR_PWM_FREQ);
     }
 
     void drive(uint8_t h, uint8_t l)
@@ -37,7 +37,7 @@ namespace BrDriver
         if (h == 0 && l == 0)
             return;
 
-        analogWrite(h, 80);
+        analogWrite(h, BR_PWM_DC * 255 / 100);
         digitalWrite(l, 1);
     }
 
@@ -48,22 +48,22 @@ namespace BrDriver
 #endif
         switch (s)
         {
-        case 3:
+        case 1:
             drive(BR_CH, BR_AL);
             break;
 
-        case 4:
+        case 0:
             drive(BR_BH, BR_AL);
             break;
         case 5:
             drive(BR_BH, BR_CL);
             break;
 
-        case 0:
+        case 4:
             drive(BR_AH, BR_CL);
             break;
 
-        case 1:
+        case 3:
             drive(BR_AH, BR_BL);
             break;
 
@@ -72,7 +72,12 @@ namespace BrDriver
             break;
         }
     }
-
+    void nextStep()
+    {
+        static uint8_t step = 1;
+        fuckStep(step++);
+        step %= 6;
+    }
     void fuckNextStepByHall()
     {
         uint8_t hSum = (digitalRead(HALL1) << 2) + (digitalRead(HALL2) << 1) + digitalRead(HALL3);
@@ -87,10 +92,10 @@ namespace BrDriver
         case 0b101:
             fuckStep(2);
             break;
-        case 0b011:
+        case 0b001:
             fuckStep(3);
             break;
-        case 0b001:
+        case 0b011:
             fuckStep(4);
             break;
         case 0b010:
@@ -100,7 +105,29 @@ namespace BrDriver
             break;
         }
     }
-
+    // void fuckNextStepByHall()
+    // {
+    //     static uint8_t hSumLast = 0b110;
+    //     uint8_t hSumCurrent = (digitalRead(HALL1) << 2) + (digitalRead(HALL2) << 1) + digitalRead(HALL3);
+    //     switch (hSumCurrent)
+    //     {
+    //     case 0b110:
+    //         fuckStep(hSumLast == 0b110 ? 0 : 5);
+    //         break;
+    //     case 0b100:
+    //         fuckStep(1);
+    //         break;
+    //     case 0b001:
+    //         fuckStep(2);
+    //         break;
+    //     case 0b011:
+    //         fuckStep(hSumLast == 0b001 ? 3 : 4);
+    //         break;
+    //     default:
+    //         break;
+    //     }
+    //     hSumLast = hSumCurrent;
+    // }
     // void beepCallBack()
     // {
     //     static bool shit = false;
@@ -126,17 +153,11 @@ namespace BrDriver
     void beep(uint16_t f, uint16_t t)
     {
         analogWriteFrequency(f);
-        analogWrite(BR_AH, 20);
+        analogWrite(BR_AH, 10);
         digitalWrite(BR_BL, 1);
         delay(t);
         drive(0, 0);
         analogWriteFrequency(1e4);
     }
 
-    void nextStep()
-    {
-        static uint8_t s = 0;
-        fuckStep(s++);
-        s %= 6;
-    }
 }
